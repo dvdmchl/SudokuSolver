@@ -6,26 +6,13 @@ import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
+// DOCUMENTATION -- ALGORITHM X, EXACT COVER PROBLEM AND DANCING LINKS IMPLEMENTATION
 
-public class SudokuSolver {
+// My class AlgorithmXSolver takes an unsolved Sudoku puzzled as int[][] (the Grid) and outputs the solved Sudoku puzzle.
+// I convert the Sudoku puzzle into an Exact Cover problem, solve that using the Dancing Links algorithm as described by Dr Donald Knuth,
+// and then get the solution and map it onto the Grid.
 
-    /* SIZE is the size parameter of the Sudoku puzzle, and N is the square of the size.  For
-     * a standard Sudoku puzzle, SIZE is 3 and N is 9. */
-    public static final int SIZE = 3;
-    public static final int N = 9;
-
-
-    private SudokuGrid grid;
-
-
-    /************************************************************************************************************************************************************/
-    // DOCUMENTATION -- ALGORITHM X, EXACT COVER PROBLEM AND DANCING LINKS IMPLEMENTATION
-
-    // My class AlgorithmXSolver takes an unsolved Sudoku puzzled as int[][] (the Grid) and outputs the solved Sudoku puzzle.
-    // I convert the Sudoku puzzle into an Exact Cover problem, solve that using the Dancing Links algorithm as described by Dr Donald Knuth,
-    // and then get the solution and map it onto the Grid.
-
-    // EXACT COVER AND DANCING LINKS
+// EXACT COVER AND DANCING LINKS
  /*An Exact Cover problem can be represented as a sparse matrix where the rows represent possibilities, and the columns
   * represent constraints. Every row will have a 1 in every column (constraint) that it satisfies, and a 0 otherwise. A set
   * of rows that together have exactly one 1 for each column can be said to be the solution set of the Exact Cover problem. Now,
@@ -59,15 +46,27 @@ public class SudokuSolver {
   * in the Arguments tab).
   */
 
-    // CREDITS:
-    // (1) Dr Donald Knuth's original paper (http://www.ocf.berkeley.edu/~jchu/publicportal/sudoku/0011047.pdf) on Dancing Links
-    // (2) Jonathan Chu's paper for the pseudocode for the Dancing Links implementation (http://www.ocf.berkeley.edu/~jchu/publicportal/sudoku/sudoku.paper.html)
-    // (3) The Wikipedia pages on Dancing Links, Exact Cover problem, Algorithm X for helping to understand Knuth's paper
-    // (4) This StackOverflow discussion to intuitively understand the Dancing Links implementation: http://stackoverflow.com/questions/1518335/the-dancing-links-algorithm-an-explanation-that-is-less-explanatory-but-more-o
-    // (5) Xi Chen's implementation in C to get an understanding of the data structures (http://uaa.wtf.im/?page_id=27)
-    // (6) Alex Rudnick's implementation in Python for getting ideas on how to implement some of the methods (https://code.google.com/p/narorumo/wiki/SudokuDLX)
+// CREDITS:
+// (1) Dr Donald Knuth's original paper (http://www.ocf.berkeley.edu/~jchu/publicportal/sudoku/0011047.pdf) on Dancing Links
+// (2) Jonathan Chu's paper for the pseudocode for the Dancing Links implementation (http://www.ocf.berkeley.edu/~jchu/publicportal/sudoku/sudoku.paper.html)
+// (3) The Wikipedia pages on Dancing Links, Exact Cover problem, Algorithm X for helping to understand Knuth's paper
+// (4) This StackOverflow discussion to intuitively understand the Dancing Links implementation: http://stackoverflow.com/questions/1518335/the-dancing-links-algorithm-an-explanation-that-is-less-explanatory-but-more-o
+// (5) Xi Chen's implementation in C to get an understanding of the data structures (http://uaa.wtf.im/?page_id=27)
+// (6) Alex Rudnick's implementation in Python for getting ideas on how to implement some of the methods (https://code.google.com/p/narorumo/wiki/SudokuDLX)
 
-    /************************************************************************************************************************************************************/
+/************************************************************************************************************************************************************/
+public class SudokuSolver {
+
+    /* SIZE is the size parameter of the Sudoku puzzle, and N is the square of the size.  For
+     * a standard Sudoku puzzle, SIZE is 3 and N is 9. */
+    public static final int SIZE = 3;
+    public static final int N = 9;
+
+
+    private SudokuGrid grid;
+
+
+
     public void solve() {
         AlgorithmXSolver solver = new AlgorithmXSolver(SIZE, N, grid.getGrid());
         solver.run();
@@ -85,7 +84,6 @@ public class SudokuSolver {
      * Load the Sudoku puzzle from the given input stream.
      * The input stream has the following format:
      * 9 rows of 9 numbers (0-9)
-     * @param sudokuInputStream
      */
     public void loadSudokuFromStream(InputStream sudokuInputStream) {
         try(var reader = new InputStreamReader(sudokuInputStream)) {

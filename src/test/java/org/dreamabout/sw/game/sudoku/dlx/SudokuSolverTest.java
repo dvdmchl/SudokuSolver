@@ -14,7 +14,8 @@ class SudokuSolverTest {
             "sudoku_easy_1.txt, sudoku_easy_1_solution.txt",
             "sudoku_intermediate_1.txt, sudoku_intermediate_1_solution.txt",
             "sudoku_difficult_1.txt, sudoku_difficult_1_solution.txt",
-            "sudoku_not_fun_1.txt, sudoku_not_fun_1_solution.txt"
+            "sudoku_not_fun_1.txt, sudoku_not_fun_1_solution.txt",
+            "sudoku_hardest_ever_1.txt, sudoku_hardest_ever_1_solution.txt"
     })
     void solverTest(String toSolveFileName, String solutionFileName) {
         var sudokuSolver = createSolverFromResourceName(toSolveFileName);
