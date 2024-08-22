@@ -2,9 +2,11 @@ package org.dreamabout.sw.game.sudoku.dlx;
 
 // Shivan Kaul Sahib
 
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import com.github.rvesse.airline.SingleCommand;
+import com.github.rvesse.airline.annotations.Command;
+import com.github.rvesse.airline.annotations.Option;
+
+import java.io.*;
 
 // DOCUMENTATION -- ALGORITHM X, EXACT COVER PROBLEM AND DANCING LINKS IMPLEMENTATION
 
@@ -55,29 +57,60 @@ import java.io.InputStreamReader;
 // (6) Alex Rudnick's implementation in Python for getting ideas on how to implement some of the methods (https://code.google.com/p/narorumo/wiki/SudokuDLX)
 
 /************************************************************************************************************************************************************/
+@Command(name = "sudoku-solver", description = "Solves a Sudoku puzzle")
 public class SudokuSolver {
 
     /* SIZE is the size parameter of the Sudoku puzzle, and N is the square of the size.  For
      * a standard Sudoku puzzle, SIZE is 3 and N is 9. */
-    public static final int SIZE = 3;
-    public static final int N = 9;
+    @Option(name = {"-s", "--size"}, description = "Size of the Sudoku puzzle")
+    private int size = 3;
 
+    @Option(name = {"-n", "--n"}, description = "Square of the size of the Sudoku puzzle")
+    private int n = 9;
+
+    @Option(name = {"-f", "--file"}, description = "Path to the Sudoku puzzle file")
+    private String sudokuFilePath;
 
     private SudokuGrid grid;
 
-
-
-    public void solve() {
-        AlgorithmXSolver solver = new AlgorithmXSolver(SIZE, N, grid.getGrid());
-        solver.run();
+    /**
+     * Main method to run the Sudoku solver.
+     * It takes the Sudoku puzzle as input and solves it.
+     * The Sudoku puzzle is provided as a text file.
+     * The text file has 9 rows of 9 numbers (0-9).
+     * The numbers represent the Sudoku puzzle, with 0 representing an empty cell.
+     */
+    public static void main(String[] args) throws Exception {
+        var argsParser = SingleCommand.singleCommand(SudokuSolver.class);
+        var resultParser = argsParser.parseWithResult(args);
+        if (resultParser.wasSuccessful()) {
+            var cmd = resultParser.getCommand();
+            cmd.initializeGrid();
+            cmd.solve();
+        } else {
+            System.err.println(resultParser.getErrors());
+        }
     }
 
+    private void initializeGrid() throws IOException {
+        if (sudokuFilePath == null) {
+            throw new IllegalArgumentException("Sudoku file path is required");
+        }
+        var sudokuFile = new File(sudokuFilePath);
+        if (!sudokuFile.exists()) {
+            throw new IllegalArgumentException("File: %s does not exist".formatted(sudokuFilePath));
+        }
+        var is = sudokuFile.toURI().toURL().openStream();
+        loadSudokuFromStream(is);
+    }
 
-    /* The main function reads in a Sudoku puzzle from the standard input,
-     * unless a file name is provided as a run-time argument, in which case the
-     * Sudoku puzzle is loaded from that file.  It then solves the puzzle, and
-     * outputs the completed puzzle to the standard output. */
-    public static void main(String[] args) throws Exception {
+    public void solve() {
+        AlgorithmXSolver solver = new AlgorithmXSolver(size, n, grid.getGrid());
+        var startTime = System.nanoTime();
+        solver.run();
+        var endTime = System.nanoTime() - startTime;
+        System.out.println("Time taken to solve the Sudoku puzzle: " + endTime / 1000000 + " ms");
+        grid.print();
     }
 
     /**
@@ -86,7 +119,7 @@ public class SudokuSolver {
      * 9 rows of 9 numbers (0-9)
      */
     public void loadSudokuFromStream(InputStream sudokuInputStream) {
-        try(var reader = new InputStreamReader(sudokuInputStream)) {
+        try (var reader = new InputStreamReader(sudokuInputStream)) {
             var bufferedReader = new BufferedReader(reader);
             var sudoku = new int[9][9];
             for (int i = 0; i < 9; i++) {
@@ -96,9 +129,9 @@ public class SudokuSolver {
                     sudoku[i][j] = Integer.parseInt(numbers[j]);
                 }
             }
-            grid = new SudokuGrid(sudoku, SIZE, N);
-        } catch (Exception e) {
-            e.printStackTrace();
+            grid = new SudokuGrid(sudoku, size, n);
+        } catch (IOException e) {
+            throw new IllegalStateException(e);
         }
     }
 
