@@ -1,6 +1,7 @@
 package org.dreamabout.sw.game.sudoku.dlx;
 
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
 import java.util.Arrays;
 
@@ -8,53 +9,19 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class SudokuSolverTest {
 
-    @Test
-    void easy1Test() {
-        var sudokuSolver = createSolverFromResourceName("sudoku_easy_1.txt");
+    @ParameterizedTest
+    @CsvSource({
+            "sudoku_easy_1.txt, sudoku_easy_1_solution.txt",
+            "sudoku_intermediate_1.txt, sudoku_intermediate_1_solution.txt",
+            "sudoku_difficult_1.txt, sudoku_difficult_1_solution.txt",
+            "sudoku_not_fun_1.txt, sudoku_not_fun_1_solution.txt"
+    })
+    void solverTest(String toSolveFileName, String solutionFileName) {
+        var sudokuSolver = createSolverFromResourceName(toSolveFileName);
         sudokuSolver.solve();
         var solvedGrid = sudokuSolver.getCurrentGrid();
 
-        var sudokuSolution = createSolverFromResourceName("sudoku_easy_1_solution.txt");
-        var solutionGrid = sudokuSolution.getCurrentGrid();
-
-        // assert that the solved grid is equal to the solution grid
-        assertTrue(Arrays.deepEquals(solvedGrid, solutionGrid));
-    }
-
-
-    @Test
-    void intermediate1Test() {
-        var sudokuSolver = createSolverFromResourceName("sudoku_intermediate_1.txt");
-        sudokuSolver.solve();
-        var solvedGrid = sudokuSolver.getCurrentGrid();
-
-        var sudokuSolution = createSolverFromResourceName("sudoku_intermediate_1_solution.txt");
-        var solutionGrid = sudokuSolution.getCurrentGrid();
-
-        // assert that the solved grid is equal to the solution grid
-        assertTrue(Arrays.deepEquals(solvedGrid, solutionGrid));
-    }
-
-    @Test
-    void difficult1Test() {
-        var sudokuSolver = createSolverFromResourceName("sudoku_difficult_1.txt");
-        sudokuSolver.solve();
-        var solvedGrid = sudokuSolver.getCurrentGrid();
-
-        var sudokuSolution = createSolverFromResourceName("sudoku_difficult_1_solution.txt");
-        var solutionGrid = sudokuSolution.getCurrentGrid();
-
-        // assert that the solved grid is equal to the solution grid
-        assertTrue(Arrays.deepEquals(solvedGrid, solutionGrid));
-    }
-
-    @Test
-    void notFun1Test() {
-        var sudokuSolver = createSolverFromResourceName("sudoku_not_fun_1.txt");
-        sudokuSolver.solve();
-        var solvedGrid = sudokuSolver.getCurrentGrid();
-
-        var sudokuSolution = createSolverFromResourceName("sudoku_not_fun_1_solution.txt");
+        var sudokuSolution = createSolverFromResourceName(solutionFileName);
         var solutionGrid = sudokuSolution.getCurrentGrid();
 
         // assert that the solved grid is equal to the solution grid
