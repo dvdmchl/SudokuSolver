@@ -1,6 +1,5 @@
-package sudoku;
+package org.dreamabout.sw.game.sudoku.dlx;
 
-import org.dreamabout.sw.game.sudoku.dlx.SudokuSolver;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
