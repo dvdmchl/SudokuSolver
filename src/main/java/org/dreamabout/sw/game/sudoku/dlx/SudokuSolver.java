@@ -11,14 +11,11 @@ public class SudokuSolver {
 
     /* SIZE is the size parameter of the Sudoku puzzle, and N is the square of the size.  For
      * a standard Sudoku puzzle, SIZE is 3 and N is 9. */
-    int SIZE, N;
+    public static final int SIZE = 3;
+    public static final int N = 9;
 
-    /* The grid contains all the numbers in the Sudoku puzzle.  Numbers which have
-     * not yet been revealed are stored as 0. */
-    int Grid[][];
 
-    /* The solve() method should remove all the unknown characters ('x') in the Grid
-     * and replace them with the numbers from 1-9 that satisfy the Sudoku puzzle. */
+    private SudokuGrid grid;
 
 
     /************************************************************************************************************************************************************/
@@ -72,123 +69,16 @@ public class SudokuSolver {
 
     /************************************************************************************************************************************************************/
     public void solve() {
-        AlgorithmXSolver solver = new AlgorithmXSolver();
-        solver.N = N;
-        solver.Grid = Grid;
-        solver.SIZE = SIZE;
-        solver.run(solver.Grid);
+        AlgorithmXSolver solver = new AlgorithmXSolver(SIZE, N, grid.getGrid());
+        solver.run();
     }
 
-
-    /*****************************************************************************/
-    /* NOTE: YOU SHOULD NOT HAVE TO MODIFY ANY OF THE FUNCTIONS BELOW THIS LINE. */
-
-    /*****************************************************************************/
-
-    /* Default constructor.  This will initialize all positions to the default 0
-     * value.  Use the read() function to load the Sudoku puzzle from a file or
-     * the standard input. */
-    public SudokuSolver(int size) {
-        SIZE = size;
-        N = size * size;
-
-        Grid = new int[N][N];
-        for (int i = 0; i < N; i++)
-            for (int j = 0; j < N; j++)
-                Grid[i][j] = 0;
-    }
-
-
-
-    /* Helper function for the printing of Sudoku puzzle.  This function will print
-     * out text, preceded by enough ' ' characters to make sure that the printint out
-     * takes at least width characters.  */
-    void printFixedWidth(String text, int width) {
-        for (int i = 0; i < width - text.length(); i++)
-            System.out.print(" ");
-        System.out.print(text);
-    }
-
-
-    /* The print() function outputs the Sudoku grid to the standard output, using
-     * a bit of extra formatting to make the result clearly readable. */
-    public void print() {
-        // Compute the number of digits necessary to print out each number in the Sudoku puzzle
-        int digits = (int) Math.floor(Math.log(N) / Math.log(10)) + 1;
-
-        // Create a dashed line to separate the boxes
-        int lineLength = (digits + 1) * N + 2 * SIZE - 3;
-        StringBuffer line = new StringBuffer();
-        for (int lineInit = 0; lineInit < lineLength; lineInit++)
-            line.append('-');
-
-        // Go through the Grid, printing out its values separated by spaces
-        for (int i = 0; i < N; i++) {
-            for (int j = 0; j < N; j++) {
-                printFixedWidth(String.valueOf(Grid[i][j]), digits);
-                // Print the vertical lines between boxes
-                if ((j < N - 1) && ((j + 1) % SIZE == 0))
-                    System.out.print(" |");
-                System.out.print(" ");
-            }
-            System.out.println();
-
-            // Print the horizontal line between boxes
-            if ((i < N - 1) && ((i + 1) % SIZE == 0))
-                System.out.println(line.toString());
-        }
-    }
-
-
-    private static int[][] EASY_SUDOKU = new int[][]{
-            {0, 0, 0, 2, 6, 0, 7, 0, 1},
-            {6, 8, 0, 0, 7, 0, 0, 9, 0},
-            {1, 9, 0, 0, 0, 4, 5, 0, 0},
-            {8, 2, 0, 1, 0, 0, 0, 4, 0},
-            {0, 0, 4, 6, 0, 2, 9, 0, 0},
-            {0, 5, 0, 0, 0, 3, 0, 2, 8},
-            {0, 0, 9, 3, 0, 0, 0, 7, 4},
-            {0, 4, 0, 0, 5, 0, 0, 3, 6},
-            {7, 0, 3, 0, 1, 8, 0, 0, 0}
-    };
 
     /* The main function reads in a Sudoku puzzle from the standard input,
      * unless a file name is provided as a run-time argument, in which case the
      * Sudoku puzzle is loaded from that file.  It then solves the puzzle, and
      * outputs the completed puzzle to the standard output. */
-    public static void main(String args[]) throws Exception {
-//        InputStream in;
-//        if( args.length > 0 )
-//            in = new FileInputStream( args[0] );
-//        else
-//            in = System.in;
-//
-//        // The first number in all Sudoku files must represent the size of the puzzle.  See
-//        // the example files for the file format.
-//        int puzzleSize = readInteger( in );
-//        if( puzzleSize > 100 || puzzleSize < 1 ) {
-//            System.out.println("Error: The Sudoku puzzle size must be between 1 and 100.");
-//            System.exit(-1);
-//        }
-
-        var puzzleSize = 3;
-        SudokuSolver s = new SudokuSolver(puzzleSize);
-
-        // read the rest of the Sudoku puzzle
-//        s.read( in );
-
-        // Solve the puzzle.  We don't currently check to verify that the puzzle can be
-        // successfully completed.  You may add that check if you want to, but it is not
-        // necessary.
-        long startTime = System.currentTimeMillis();
-        s.Grid = EASY_SUDOKU; // test
-        s.solve();
-        long endTime = System.currentTimeMillis(); // test
-        System.out.println(endTime - startTime); // test
-        //  s.solve();
-
-        // Print out the (hopefully completed!) puzzle
-        s.print();
+    public static void main(String[] args) throws Exception {
     }
 
     /**
@@ -208,14 +98,14 @@ public class SudokuSolver {
                     sudoku[i][j] = Integer.parseInt(numbers[j]);
                 }
             }
-            Grid = sudoku;
+            grid = new SudokuGrid(sudoku, SIZE, N);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public int[][] getCurrentGrid() {
-        return Grid;
+    public int[][] getGridArray() {
+        return grid.getGrid();
     }
 }
 

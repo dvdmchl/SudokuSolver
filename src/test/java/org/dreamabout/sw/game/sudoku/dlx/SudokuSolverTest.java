@@ -19,10 +19,10 @@ class SudokuSolverTest {
     void solverTest(String toSolveFileName, String solutionFileName) {
         var sudokuSolver = createSolverFromResourceName(toSolveFileName);
         sudokuSolver.solve();
-        var solvedGrid = sudokuSolver.getCurrentGrid();
+        var solvedGrid = sudokuSolver.getGridArray();
 
         var sudokuSolution = createSolverFromResourceName(solutionFileName);
-        var solutionGrid = sudokuSolution.getCurrentGrid();
+        var solutionGrid = sudokuSolution.getGridArray();
 
         // assert that the solved grid is equal to the solution grid
         assertTrue(Arrays.deepEquals(solvedGrid, solutionGrid));
@@ -30,8 +30,7 @@ class SudokuSolverTest {
 
     private SudokuSolver createSolverFromResourceName(String resourceName) {
         var sudokuInputStream = getClass().getClassLoader().getResourceAsStream(resourceName);
-        var puzzleSize = 3;
-        var sudokuSolver = new SudokuSolver(puzzleSize);
+        var sudokuSolver = new SudokuSolver();
         sudokuSolver.loadSudokuFromStream(sudokuInputStream);
         return sudokuSolver;
     }
