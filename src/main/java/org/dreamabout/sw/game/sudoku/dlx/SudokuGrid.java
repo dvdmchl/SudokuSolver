@@ -22,7 +22,7 @@ public class SudokuGrid {
 
         // Create a dashed line to separate the boxes
         int lineLength = (digits + 1) * N + 2 * SIZE - 3;
-        StringBuffer line = new StringBuffer();
+        var line = new StringBuilder();
         for (int lineInit = 0; lineInit < lineLength; lineInit++)
             line.append('-');
 
