@@ -60,14 +60,6 @@ import java.io.*;
 @Command(name = "sudoku-solver", description = "Solves a Sudoku puzzle")
 public class SudokuSolver {
 
-    /* SIZE is the size parameter of the Sudoku puzzle, and N is the square of the size.  For
-     * a standard Sudoku puzzle, SIZE is 3 and N is 9. */
-    @Option(name = {"-s", "--size"}, description = "Size of the Sudoku puzzle")
-    private int size = 3;
-
-    @Option(name = {"-n", "--n"}, description = "Square of the size of the Sudoku puzzle")
-    private int n = 9;
-
     @Option(name = {"-f", "--file"}, description = "Path to the Sudoku puzzle file")
     private String sudokuFilePath;
 
@@ -105,7 +97,7 @@ public class SudokuSolver {
     }
 
     public void solve() {
-        AlgorithmXSolver solver = new AlgorithmXSolver(size, n, grid.getGrid());
+        AlgorithmXSolver solver = new AlgorithmXSolver(grid.getGrid());
         var startTime = System.nanoTime();
         solver.run();
         var endTime = System.nanoTime() - startTime;
@@ -129,7 +121,7 @@ public class SudokuSolver {
                     sudoku[i][j] = Integer.parseInt(numbers[j]);
                 }
             }
-            grid = new SudokuGrid(sudoku, size, n);
+            grid = new SudokuGrid(sudoku);
         } catch (IOException e) {
             throw new IllegalStateException(e);
         }

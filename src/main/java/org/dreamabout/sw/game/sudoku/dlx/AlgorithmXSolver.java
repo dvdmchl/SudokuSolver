@@ -5,12 +5,11 @@ import lombok.RequiredArgsConstructor;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+import static org.dreamabout.sw.game.sudoku.dlx.Constant.N;
+import static org.dreamabout.sw.game.sudoku.dlx.Constant.SIZE;
+
 @RequiredArgsConstructor
 public class AlgorithmXSolver {
-    /* SIZE is the size parameter of the Sudoku puzzle, and N is the square of the size.  For
-     * a standard Sudoku puzzle, SIZE is 3 and N is 9. */
-    private final int size;
-    private final int n;
 
     /* The grid contains all the numbers in the Sudoku puzzle.  Numbers which have
      * not yet been revealed are stored as 0. */
@@ -39,9 +38,9 @@ public class AlgorithmXSolver {
         int[][] clues = null; // stores the numbers that are already given on the board i.e. the 'clues'
         ArrayList cluesList = new ArrayList(); // the list used to get the clues. Because we use a raw ArrayList, we later have to cast to int[] before storing in clues
         int counter = 0;
-        for (int r = 0; r < n; r++) // iterates over the rows of Grid
+        for (int r = 0; r < N; r++) // iterates over the rows of Grid
         {
-            for (int c = 0; c < n; c++) // iterates over the columns of Grid
+            for (int c = 0; c < N; c++) // iterates over the columns of Grid
             {
                 if (initialMatrix[r][c] > 0) // if the number on the Grid is != 0 (the number is a clue and not a blank space to solved for), then store it
                 {
@@ -56,26 +55,26 @@ public class AlgorithmXSolver {
         }
 
         // Now, we build our sparse matrix
-        byte[][] matrix = new byte[n * n * n][4 * n * n];
+        byte[][] matrix = new byte[N * N * N][4 * N * N];
         // The rows of our matrix represent all the possibilities, whereas the columns represent the constraints.
         // Hence, there are N^3 rows (N rows * N columns * N numbers), and N^2 * 4 columns (N rows * N columns * 4 constraints)
 
         // iterate over all the possible digits d
-        for (int d = 0; d < n; d++) {
+        for (int d = 0; d < N; d++) {
             // iterate over all the possible rows r
-            for (int r = 0; r < n; r++) {
+            for (int r = 0; r < N; r++) {
                 // iterator over all the possible columns c
-                for (int c = 0; c < n; c++) {
+                for (int c = 0; c < N; c++) {
                     if (!filled(d, r, c, clues)) // if the cell is not already filled
                     {
                         // this idea for this way of mapping the sparse matrix is taken from the Python implementation: https://code.google.com/p/narorumo/wiki/SudokuDLX
-                        int rowIndex = c + (n * r) + (n * n * d);
+                        int rowIndex = c + (N * r) + (N * N * d);
                         // there are four 1s in each row, one for each constraint
-                        int blockIndex = ((c / size) + ((r / size) * size));
-                        int colIndexRow = 3 * n * d + r;
-                        int colIndexCol = 3 * n * d + n + c;
-                        int colIndexBlock = 3 * n * d + 2 * n + blockIndex;
-                        int colIndexSimple = 3 * n * n + (c + n * r);
+                        int blockIndex = ((c / SIZE) + ((r / SIZE) * SIZE));
+                        int colIndexRow = 3 * N * d + r;
+                        int colIndexCol = 3 * N * d + N + c;
+                        int colIndexBlock = 3 * N * d + 2 * N + blockIndex;
+                        int colIndexSimple = 3 * N * N + (c + N * r);
                         // fill in the 1's
                         matrix[rowIndex][colIndexRow] = 1;
                         matrix[rowIndex][colIndexCol] = 1;
@@ -97,10 +96,10 @@ public class AlgorithmXSolver {
                 int r = prefill[i][1];
                 int c = prefill[i][2];
                 // calculate the block indices
-                int blockStartIndexCol = (c / size) * size;
-                int blockEndIndexCol = blockStartIndexCol + size;
-                int blockStartIndexRow = (r / size) * size;
-                int blockEndIndexRow = blockStartIndexRow + size;
+                int blockStartIndexCol = (c / SIZE) * SIZE;
+                int blockEndIndexCol = blockStartIndexCol + SIZE;
+                int blockStartIndexRow = (r / SIZE) * SIZE;
+                int blockEndIndexRow = blockStartIndexRow + SIZE;
                 if (d != digit && row == r && col == c) {
                     filled = true;
                 } else if ((d == digit) && (row == r || col == c) && !(row == r && col == c)) {
@@ -131,25 +130,25 @@ public class AlgorithmXSolver {
         {
             // We create the ColumnID that will store the information. We will later map this ID to the current curColumn
             ColumnId id = new ColumnId();
-            if (col < 3 * n * n) {
+            if (col < 3 * N * N) {
                 // identifying the digit
-                int digit = (col / (3 * n)) + 1;
+                int digit = (col / (3 * N)) + 1;
                 id.number = digit;
                 // is it for a row, column or block?
-                int index = col - (digit - 1) * 3 * n;
-                if (index < n) {
+                int index = col - (digit - 1) * 3 * N;
+                if (index < N) {
                     id.constraint = 0; // we're in the row constraint
                     id.position = index;
-                } else if (index < 2 * n) {
+                } else if (index < 2 * N) {
                     id.constraint = 1; // we're in the column constraint
-                    id.position = index - n;
+                    id.position = index - N;
                 } else {
                     id.constraint = 2; // we're in the block constraint
-                    id.position = index - 2 * n;
+                    id.position = index - 2 * N;
                 }
             } else {
                 id.constraint = 3; // we're in the cell constraint
-                id.position = col - 3 * n * n;
+                id.position = col - 3 * N * N;
             }
             curColumn.right = new ColumnNode();
             curColumn.right.left = curColumn;
@@ -246,7 +245,7 @@ public class AlgorithmXSolver {
 
     // this allows us to map the solved linked list to the Grid
     private void mapSolvedToGrid() {
-        int[] result = new int[n * n];
+        int[] result = new int[N * N];
         for (Iterator it = solution.iterator(); it.hasNext(); )  // we use Iterators to iterate over every single element of the ArrayList
         // we stop iterating once we run out of elements in the list
         {
@@ -267,9 +266,9 @@ public class AlgorithmXSolver {
         }
         // for the second step, we feed all the values of the array result[] (in order) to the Grid
         int resultCounter = 0;
-        for (int r = 0; r < n; r++) // iterates for the rows
+        for (int r = 0; r < N; r++) // iterates for the rows
         {
-            for (int c = 0; c < n; c++) // iterates for the columns
+            for (int c = 0; c < N; c++) // iterates for the columns
             {
                 grid[r][c] = result[resultCounter];
                 resultCounter++;
