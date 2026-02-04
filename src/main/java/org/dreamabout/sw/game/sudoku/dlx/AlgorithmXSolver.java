@@ -13,21 +13,28 @@ public class AlgorithmXSolver {
 
     /* The grid contains all the numbers in the Sudoku puzzle.  Numbers which have
      * not yet been revealed are stored as 0. */
-    private final int[][] grid;
+    private final SudokuGrid sudokuGrid;
 
+    /**
+     * If true, it will call the mapSolvedToGrid() method in each step of the search method.
+     */
+    private final boolean mapSolvedInEachStep;
 
     private ColumnNode root = null; // this is the starting node of the linked list
     private List<Node> solution = new ArrayList<>(); // a raw Array List for dynamically storing the solutions. It slows things
     // down a bit, but this how I started and ran out of time before I could come up with a more efficient way to do it.
+    private boolean solved = false;
 
     // the run method. We pass the Grid[][] as input
-    public void run() {
-        byte[][] matrix = createMatrix(grid); // create the sparse matrix. We use the type byte to speed things up. I tried using
+    public boolean run() {
+        solved = false;
+        byte[][] matrix = createMatrix(sudokuGrid.getGrid()); // create the sparse matrix. We use the type byte to speed things up. I tried using
         // using all the primitive types, expecting the same results in terms
         // of speed; the only performance boost should have been in terms of space.
         // Yet, there was a marked difference in the running times. Hence, I used byte[][] whenever possible.
         createDoubleLinkedLists(matrix);   // create the circular doubly-linked toroidal list
         search(0); // start the Dancing Links process of searching and covering and uncovering recursively
+        return solved;
     }
 
     // data structures
@@ -238,13 +245,24 @@ public class AlgorithmXSolver {
 
     // the searching algorithm. Pseudo-code from Jonathan Chu's paper (cited above).
     private void search(int k) {
+        if (solved) {
+            return;
+        }
         if (root.right == root) // if we've run out of columns, we've solved the exact cover problem!
         {
             mapSolvedToGrid(); // map the solved linked list to the grid
+            solved = true;
             return;
         }
+
+        if (mapSolvedInEachStep) {
+            mapSolvedToGrid();
+        }
+
         ColumnNode c = choose(); // we choose a column to cover
+        notifyColumnChosen(c);
         cover(c);
+        notifyColumnCovered(c);
         Node r = c.down;
         while (r != c) {
             if (k < solution.size()) {
@@ -258,6 +276,9 @@ public class AlgorithmXSolver {
                 j = j.right;
             }
             search(k + 1); //recursively search
+            if (solved) {
+                return;
+            }
 
             Node r2 = solution.get(k);
             Node j2 = r2.left;
@@ -268,6 +289,7 @@ public class AlgorithmXSolver {
             r = r.down;
         }
         uncover(c);
+        notifyColumnUncovered(c);
     }
 
     // this allows us to map the solved linked list to the Grid
@@ -294,7 +316,7 @@ public class AlgorithmXSolver {
         {
             for (int c = 0; c < N; c++) // iterates for the columns
             {
-                grid[r][c] = result[resultCounter];
+                sudokuGrid.setValue(r, c, result[resultCounter]);
                 resultCounter++;
             }
         }
@@ -354,6 +376,18 @@ public class AlgorithmXSolver {
         }
         column.right.left = column; // reinserts column head
         column.left.right = column;
+    }
+
+    private void notifyColumnChosen(ColumnNode c) {
+        // no-op (UI hooks not wired)
+    }
+
+    private void notifyColumnCovered(ColumnNode c) {
+        // no-op (UI hooks not wired)
+    }
+
+    private void notifyColumnUncovered(ColumnNode c) {
+        // no-op (UI hooks not wired)
     }
 
 }

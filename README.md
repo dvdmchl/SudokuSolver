@@ -1,3 +1,5 @@
+![Sudoku Solver](screenshot.png)
+
 ### Algorithm X, Exact Cover Problem And Dancing Links Implementation
 
 The class AlgorithmXSolver takes an unsolved Sudoku puzzle as an int[][] (the Grid) and outputs the solved Sudoku puzzle. We convert the Sudoku puzzle into an Exact Cover problem, solve that using the Dancing Links algorithm as described by Knuth, and then get the solution and map it onto the Grid.
@@ -25,6 +27,10 @@ For Sudoku, there are 4 constraints.
 4) There can be only one number in a cell
 
 The rows represent every single possible position for every number. Every row would have 4 1s, representing one possible place for the number (satisfying all 4 constraints). To implement my solution, I created a class AlgorithmXSolver that contained all the methods and the data structures required to solve the problem. I instantiated an instance of this class in the solve() method, and then ran it. I had to convert the given Grid into a sparse matrix, accounting for the given clues (filled in values). Then, this matrix is converted into a linked list as talked about above and solved using the Dancing Links approach. We store possible solutions in an ArrayList 'solution'. Once we get a set of Nodes that solves the problem, we take the solution list and iterate over every single Node and map the solution over the original Grid. 
+
+### JavaFX UI
+
+Run the JavaFX UI via `SudokuSolverUI`. Enter 9 lines of 9 digits (0 = empty), click **Solve**, and the solved grid appears below with given digits in black and solved digits in blue.
 
 ### References
 

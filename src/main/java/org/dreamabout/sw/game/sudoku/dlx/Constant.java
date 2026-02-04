@@ -9,4 +9,6 @@ public class Constant {
      * a standard Sudoku puzzle, SIZE is 3 and N is 9. */
     public static final int SIZE = 3;
     public static final int N = SIZE * SIZE;
+
+    public static int ONE_MILLION = 1000000;
 }

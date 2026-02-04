@@ -3,12 +3,17 @@ package org.dreamabout.sw.game.sudoku.dlx;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static org.dreamabout.sw.game.sudoku.dlx.Constant.N;
 import static org.dreamabout.sw.game.sudoku.dlx.Constant.SIZE;
 
 @Data
 @RequiredArgsConstructor
 public class SudokuGrid {
+
+    private List<SudokuSolverListener> listeners = new ArrayList<>();
 
     /* The grid contains all the numbers in the Sudoku puzzle.  Numbers which have
      * not yet been revealed are stored as 0. */
@@ -52,4 +57,19 @@ public class SudokuGrid {
         System.out.print(text);
     }
 
+    public void addListener(SudokuSolverListener listener) {
+        listeners.add(listener);
+    }
+
+    private void notifyCellUpdated(int row, int col, int value) {
+            for (SudokuSolverListener listener : listeners) {
+                listener.cellUpdated(row, col, value);
+            }
+
+    }
+
+    public void setValue(int row, int column, int value) {
+        grid[row][column] = value;
+        notifyCellUpdated(row, column, value);
+    }
 }

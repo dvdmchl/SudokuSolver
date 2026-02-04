@@ -7,6 +7,10 @@ import com.github.rvesse.airline.annotations.Command;
 import com.github.rvesse.airline.annotations.Option;
 
 import java.io.*;
+import java.util.stream.Collectors;
+
+import static org.dreamabout.sw.game.sudoku.dlx.Constant.N;
+import static org.dreamabout.sw.game.sudoku.dlx.Constant.ONE_MILLION;
 
 // DOCUMENTATION -- ALGORITHM X, EXACT COVER PROBLEM AND DANCING LINKS IMPLEMENTATION
 
@@ -63,6 +67,9 @@ public class SudokuSolver {
     @Option(name = {"-f", "--file"}, description = "Path to the Sudoku puzzle file")
     private String sudokuFilePath;
 
+    @Option(name = {"-v", "--visualize"}, description = "Visualize the Sudoku puzzle solving process")
+    private boolean visualize = true;
+
     private SudokuGrid grid;
 
     /**
@@ -78,10 +85,25 @@ public class SudokuSolver {
         if (resultParser.wasSuccessful()) {
             var cmd = resultParser.getCommand();
             cmd.initializeGrid();
+            if (cmd.visualize) {
+                cmd.initializeUI();
+                System.out.println("Waiting for the UI to initialize...");
+                while (!SudokuSolverUI.isInitialized) {
+                    Thread.sleep(100);
+                }
+                System.out.println("UI initialized. Starting to solve the Sudoku puzzle...");
+            }
             cmd.solve();
         } else {
             System.err.println(resultParser.getErrors());
         }
+    }
+
+    private void initializeUI() {
+        SudokuSolverUI.setSudokuGrid(grid);
+        var uiThread = new Thread(() -> SudokuSolverUI.launch(SudokuSolverUI.class));
+        SudokuSolverUI.uiThread = uiThread;
+        uiThread.start();
     }
 
     private void initializeGrid() throws IOException {
@@ -96,13 +118,21 @@ public class SudokuSolver {
         loadSudokuFromStream(is);
     }
 
-    public void solve() {
-        AlgorithmXSolver solver = new AlgorithmXSolver(grid.getGrid());
+    public boolean solve() {
+        AlgorithmXSolver solver = new AlgorithmXSolver(grid, visualize);
         var startTime = System.nanoTime();
-        solver.run();
+        var solved = solver.run();
         var endTime = System.nanoTime() - startTime;
-        System.out.println("Time taken to solve the Sudoku puzzle: " + endTime / 1000000 + " ms");
-        grid.print();
+        System.out.println("Time taken to solve the Sudoku puzzle: " + endTime / ONE_MILLION + " ms");
+        if (solved) {
+            grid.print();
+        } else {
+            System.out.println("No solution found for the Sudoku puzzle.");
+        }
+        if (visualize) {
+            SudokuSolverUI.notifySolveCompleted();
+        }
+        return solved;
     }
 
     /**
@@ -111,24 +141,52 @@ public class SudokuSolver {
      * 9 rows of 9 numbers (0-9)
      */
     public void loadSudokuFromStream(InputStream sudokuInputStream) {
-        try (var reader = new InputStreamReader(sudokuInputStream)) {
-            var bufferedReader = new BufferedReader(reader);
-            var sudoku = new int[9][9];
-            for (int i = 0; i < 9; i++) {
-                var line = bufferedReader.readLine();
-                var numbers = line.split("");
-                for (int j = 0; j < 9; j++) {
-                    sudoku[i][j] = Integer.parseInt(numbers[j]);
-                }
-            }
-            grid = new SudokuGrid(sudoku);
+        if (sudokuInputStream == null) {
+            throw new IllegalArgumentException("Sudoku input stream is required");
+        }
+        try (var reader = new BufferedReader(new InputStreamReader(sudokuInputStream))) {
+            var content = reader.lines().collect(Collectors.joining("\n"));
+            loadSudokuFromString(content);
         } catch (IOException e) {
             throw new IllegalStateException(e);
         }
     }
 
+    /**
+     * Load the Sudoku puzzle from a plain-text string.
+     * The input has 9 lines of 9 digits (0-9), where 0 represents an empty cell.
+     */
+    public void loadSudokuFromString(String sudokuText) {
+        if (sudokuText == null) {
+            throw new IllegalArgumentException("Sudoku text is required");
+        }
+        var lines = sudokuText.strip().split("\\R");
+        if (lines.length != N) {
+            throw new IllegalArgumentException("Sudoku must have %d lines".formatted(N));
+        }
+        var sudoku = new int[N][N];
+        for (int i = 0; i < N; i++) {
+            var line = lines[i].trim();
+            if (line.length() != N) {
+                throw new IllegalArgumentException("Each line must have %d digits".formatted(N));
+            }
+            for (int j = 0; j < N; j++) {
+                char ch = line.charAt(j);
+                if (ch < '0' || ch > '9') {
+                    throw new IllegalArgumentException("Sudoku may only contain digits 0-9");
+                }
+                sudoku[i][j] = ch - '0';
+            }
+        }
+        grid = new SudokuGrid(sudoku);
+    }
+
     public int[][] getGridArray() {
         return grid.getGrid();
+    }
+
+    public void setVisualize(boolean visualize) {
+        this.visualize = visualize;
     }
 }
 
